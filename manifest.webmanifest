@@ -1,12 +1,10 @@
 {
-  "name": "Personal Budget OS",
-  "short_name": "Budget OS",
-  "description": "Private local-first personal budgeting and planning app.",
-  "start_url": "./index.html",
+  "name": "Budget",
+  "short_name": "Budget",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
-  "theme_color": "#0f172a",
-  "orientation": "portrait",
+  "theme_color": "#2563eb",
   "icons": [
     {
       "src": "icon-180.png",

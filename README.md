@@ -1,19 +1,35 @@
-# Personal Budget OS — iPhone/PWA Edition
+# Budget OS v3.1 — Appearance + Cloud Sync Fix
 
-This version is designed for Safari on iPhone.
+This is an updated version of Budget OS v3. It keeps the appearance/icon presets and adds a more reliable Supabase Cloud Sync flow.
 
-IMPORTANT: iPhone Files cannot run a ZIP's HTML as a full web app. The app must be opened from a web server (HTTPS) for PWA features such as Add to Home Screen and offline caching.
+## What changed
+- Cloud Sync now explicitly creates and verifies a Supabase Auth session before Upload/Download.
+- Connect no longer automatically downloads/replaces your local data.
+- Supabase browser sessions are configured to persist and auto-refresh.
+- Upload and Download give the actual Supabase error instead of a generic failure message.
+- Added a Sign out button.
+- Cloud Sync field now calls the browser-safe key a **Supabase publishable key**. A legacy `anon` key also works.
+- Updated SQL includes the required `authenticated` Data API table grants while RLS still restricts each user to their own row.
 
-Files:
-- index.html — app
-- manifest.webmanifest — PWA manifest
-- sw.js — offline service worker
-- icon-180.png / icon-512.png — Home Screen icons
+## Supabase setup
+1. Open your Supabase project.
+2. Open **SQL Editor** and run the complete `supabase-setup.sql` included with this ZIP.
+   - If you previously ran the older SQL, run this updated SQL again. It is safe to rerun.
+3. In **Authentication → Users**, create the email/password user you want Budget OS to use.
+4. In **Settings → API Keys**, copy the **Publishable key** (`sb_publishable_...`). Do not use the Secret key.
+5. In Budget OS → **Settings → Cloud Sync**, enter:
+   - Project URL: `https://YOUR-PROJECT-REF.supabase.co`
+   - Publishable key: `sb_publishable_...`
+   - The same email/password as the Supabase Auth user
+6. Click **Connect**. You should see: **Connected — signed in as ... Upload or download is ready.**
+7. On the device containing your current budget, click **Upload current data**.
+8. On another device, enter the same Supabase details, click **Connect**, then click **Download cloud data**.
 
-To install on iPhone after hosting:
-1. Open the HTTPS site in Safari.
-2. Tap Share.
-3. Tap Add to Home Screen.
-4. Open Budget OS from the new Home Screen icon.
+## Important
+- Never put a Supabase `sb_secret_...` key in Budget OS, GitHub, or any browser/client app.
+- Cloud Sync does not connect to bank accounts and does not store bank credentials.
+- The current sync model stores one JSON record per authenticated user.
+- The app still supports JSON backup/restore and CSV export.
 
-Your budgeting data is stored locally in the browser. This app does not request bank passwords or external account credentials.
+## GitHub Pages
+Replace the files in your existing `personal-budget-os` GitHub repository with the files from this ZIP. GitHub Pages can continue serving the app from the repository root.
