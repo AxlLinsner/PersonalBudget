@@ -1,52 +1,29 @@
-# Budget OS v3.1 — Appearance + Cloud Sync Fix
+# Budget OS v4.4 — Dashboard & Update Fixes
 
-This is an updated version of Budget OS v3. It keeps the appearance/icon presets and adds a more reliable Supabase Cloud Sync flow.
+This build is based on the v4.4 Dashboard package and includes the requested refinements:
 
-## What changed
-- Cloud Sync now explicitly creates and verifies a Supabase Auth session before Upload/Download.
-- Connect no longer automatically downloads/replaces your local data.
-- Supabase browser sessions are configured to persist and auto-refresh.
-- Upload and Download give the actual Supabase error instead of a generic failure message.
-- Added a Sign out button.
-- Cloud Sync field now calls the browser-safe key a **Supabase publishable key**. A legacy `anon` key also works.
-- Updated SQL includes the required `authenticated` Data API table grants while RLS still restricts each user to their own row.
+- Removes the duplicate expense labels that were being drawn beside the spending pie chart.
+- Keeps the pie chart clean and uses the expandable **Expenses & Bills Paid** section for the detailed list, while allowing hover/click/tap on each pie slice for details.
+- Adds listed recurring bills from **Bills & Calendar** to the current-month spending total, pie chart, and expandable detail list. If a bill is already represented by a matching expense transaction (amount plus bill/category/name match), it is displayed as paid via that transaction but is not counted twice.
+- Current-month **Spending** now equals actual expense transactions plus listed recurring bills; **Available** is calculated from Income minus that total. Debt Payoff is not separately deducted.
+- The 12-month cash-position graph uses the same spending logic, so its monthly saved/shortfall figures stay consistent with the Dashboard.
+- Financial Snapshot comparisons now use directional arrows and clear wording such as **↑ 10.0% more** or **↓ 77.3% less**, with explicit Month / Quarter / Year labels. Unavailable or mathematically undefined comparisons display **-**.
+- Income, Spending, and Available now have month, quarter, and year comparisons where applicable.
+- Forecast calculations continue to include projected debt payments; Dashboard Available does not double-count debt.
+- App Updates wording is simplified and the PWA cache is versioned as v4.4.
 
-## Supabase setup
-1. Open your Supabase project.
-2. Open **SQL Editor** and run the complete `supabase-setup.sql` included with this ZIP.
-   - If you previously ran the older SQL, run this updated SQL again. It is safe to rerun.
-3. In **Authentication → Users**, create the email/password user you want Budget OS to use.
-4. In **Settings → API Keys**, copy the **Publishable key** (`sb_publishable_...`). Do not use the Secret key.
-5. In Budget OS → **Settings → Cloud Sync**, enter:
-   - Project URL: `https://YOUR-PROJECT-REF.supabase.co`
-   - Publishable key: `sb_publishable_...`
-   - The same email/password as the Supabase Auth user
-6. Click **Connect**. You should see: **Connected — signed in as ... Upload or download is ready.**
-7. On the device containing your current budget, click **Upload current data**.
-8. On another device, enter the same Supabase details, click **Connect**, then click **Download cloud data**.
-
-## Important
-- Never put a Supabase `sb_secret_...` key in Budget OS, GitHub, or any browser/client app.
-- Cloud Sync does not connect to bank accounts and does not store bank credentials.
-- The current sync model stores one JSON record per authenticated user.
-- The app still supports JSON backup/restore and CSV export.
-
-## GitHub Pages
-Replace the files in your existing `personal-budget-os` GitHub repository with the files from this ZIP. GitHub Pages can continue serving the app from the repository root.
+No Supabase SQL or database structure changes are required.
 
 
-## v3.2 Dashboard/cache fix
-- Bumped the service-worker cache version so GitHub Pages/PWA installs fetch the updated app.
-- Dashboard month calculations now use the device's local calendar date rather than UTC.
-- Dashboard income/expense totals explicitly filter current-month transactions.
+## v4.4 Dashboard refinements
+
+- Renamed the Dashboard transaction section to **Expenses** for user-facing clarity.
+- The spending pie chart is interactive: hover or click/tap a slice to see its category, dollar total, and percentage of spending.
+- The Financial Snapshot is divided into **Balance Metrics** and **Flow Metrics**.
+- Comparisons use clear directional arrows and wording such as `↑ 10.0% more` or `↓ 77.3% less`.
+- Missing or mathematically unavailable comparisons display `-`.
+- Bills and expenses are consolidated so a listed bill matched to an expense transaction is not counted twice.
 
 
-## v3.3 Full audit fixes
-- Local month calculations no longer depend on UTC conversion.
-- Forecast month keys use local calendar months.
-- Future forecast months can use scheduled paycheck frequencies.
-- Existing/legacy data is normalized so missing arrays do not break rendering.
-- Cloud Sync recreates its Supabase client when URL/key changes.
-- Automatic background sync now verifies a real session and does not throw user-facing alerts when no session exists.
-- Cloud downloads validate and normalize the returned backup before replacing local data.
-- Service-worker cache version bumped again to force the new code to load.
+## v4.5 historical balance architecture
+Balance history is now stored on the source modules (assets, liabilities, debts, investments, and savings goals). The Dashboard Financial Snapshot reads Last Month, Last Quarter, and Last Year balance changes from those histories. Existing records are not assigned fake historical dates; use each record’s History control to enter a known historical balance/value.
