@@ -1,29 +1,62 @@
-# Budget OS v4.4 — Dashboard & Update Fixes
+# Budget OS v4.7.2 — Bills & Calendar Architecture
 
-This build is based on the v4.4 Dashboard package and includes the requested refinements:
+This build uses the v4.5 source-module financial history architecture as its baseline and rebuilds Bills & Calendar around a clear separation between **obligations** and **actual money movement**.
 
-- Removes the duplicate expense labels that were being drawn beside the spending pie chart.
-- Keeps the pie chart clean and uses the expandable **Expenses & Bills Paid** section for the detailed list, while allowing hover/click/tap on each pie slice for details.
-- Adds listed recurring bills from **Bills & Calendar** to the current-month spending total, pie chart, and expandable detail list. If a bill is already represented by a matching expense transaction (amount plus bill/category/name match), it is displayed as paid via that transaction but is not counted twice.
-- Current-month **Spending** now equals actual expense transactions plus listed recurring bills; **Available** is calculated from Income minus that total. Debt Payoff is not separately deducted.
-- The 12-month cash-position graph uses the same spending logic, so its monthly saved/shortfall figures stay consistent with the Dashboard.
-- Financial Snapshot comparisons now use directional arrows and clear wording such as **↑ 10.0% more** or **↓ 77.3% less**, with explicit Month / Quarter / Year labels. Unavailable or mathematically undefined comparisons display **-**.
-- Income, Spending, and Available now have month, quarter, and year comparisons where applicable.
-- Forecast calculations continue to include projected debt payments; Dashboard Available does not double-count debt.
-- App Updates wording is simplified and the PWA cache is versioned as v4.4.
+## v4.7.2 Bug Fixes
 
-No Supabase SQL or database structure changes are required.
+- Fixed Dashboard spending chart rendering and current-month expense/bill presentation.
+- Fixed Dashboard Next Bills display to read unpaid bill occurrences.
+- Fixed modal Save/Close behavior.
+- Fixed calendar layout sizing and day-level detail interaction.
+- Fixed partial-payment preservation during bill edits and linked-transaction deletion status recalculation.
+- Restored the PWA manifest.
 
+## Bills & Calendar
 
-## v4.4 Dashboard refinements
+- A **bill** is an obligation definition: name, category, recurring/one-time type, fixed/variable amount type, expected amount, first due date, recurrence, autopay, notes, and active/inactive status.
+- A **bill occurrence** is one specific instance of a bill for a specific due date.
+- Occurrences have expected amount, due date, payment status, payment date, actual amount, and linked transaction/payment IDs.
+- Supported recurrence: weekly, biweekly, monthly, quarterly, semiannual, and annual.
+- One-time bills create one occurrence.
+- Autopay is informational and never marks a bill paid automatically.
+- Future bill changes apply to future unpaid occurrences. Paid history and transactions are preserved.
+- Deactivation stops future occurrences without deleting history.
 
-- Renamed the Dashboard transaction section to **Expenses** for user-facing clarity.
-- The spending pie chart is interactive: hover or click/tap a slice to see its category, dollar total, and percentage of spending.
-- The Financial Snapshot is divided into **Balance Metrics** and **Flow Metrics**.
-- Comparisons use clear directional arrows and wording such as `↑ 10.0% more` or `↓ 77.3% less`.
-- Missing or mathematically unavailable comparisons display `-`.
-- Bills and expenses are consolidated so a listed bill matched to an expense transaction is not counted twice.
+## Payments and Transactions
 
+- Bills do not count as spending merely because they exist.
+- **Transactions represent actual money movement.**
+- Marking a bill Paid creates one expense transaction and links it to the bill occurrence.
+- An existing transaction can be explicitly linked to a bill occurrence without creating another transaction.
+- A bill payment therefore appears in Transactions and is counted by Dashboard spending exactly once.
+- Payment date and due date remain separate.
+- Expected amount and actual payment amount remain separate, supporting variable bills and late/early payments.
+- Partial-payment structure is supported through multiple payment transaction IDs on an occurrence.
+- Deleting a linked transaction removes that payment from the occurrence and recalculates its unpaid/due/overdue state.
 
-## v4.5 historical balance architecture
-Balance history is now stored on the source modules (assets, liabilities, debts, investments, and savings goals). The Dashboard Financial Snapshot reads Last Month, Last Quarter, and Last Year balance changes from those histories. Existing records are not assigned fake historical dates; use each record’s History control to enter a known historical balance/value.
+## Dashboard / Forecast / Paycheck Planner / Reports
+
+- Dashboard spending reads actual expense transactions only.
+- Upcoming Bills reads unpaid future bill occurrences.
+- Dashboard never adds a second bill charge on top of a linked transaction.
+- Forecasts use future unpaid bill occurrences as projected obligations and actual transactions for historical cash flow.
+- Paycheck Planner consumes upcoming bill obligations rather than creating duplicate bills.
+- Reports can distinguish planned bill obligations from actual bill-payment transactions and variable-bill variance.
+
+## Historical Balance Architecture
+
+Balance history remains stored on the source financial modules: assets, liabilities, debts, investments, and savings goals. The Dashboard Financial Snapshot reads those histories for Last Month, Last Quarter, and Last Year. Existing records are not assigned invented historical values.
+
+## Cloud Sync
+
+Supabase remains unchanged in this build. Current sync is still manual upload/download and last-upload-wins. Automatic multi-device conflict-aware synchronization is a separate future project and is not mixed into the Bills & Calendar redesign.
+
+## Data safety
+
+The app uses the existing local Budget OS data key and preserves existing financial records. Existing legacy bill records are migrated into the new bill-definition format without inventing historical payments. Existing transactions are not automatically matched to old bills because amount/name/category matching is intentionally not trusted.
+
+## Versioning
+
+- App version: **4.7.0**
+- PWA cache: **budget-os-v4-7-1**
+- Normal app updates do not require reinstalling the iPhone Home Screen app.

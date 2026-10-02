@@ -1,1 +1,11 @@
-{"version":"4.5.0","whatsNew":["Added real historical balance tracking to the source financial modules for Net Worth, Debt, Investments, Assets, Liabilities, and Savings.","Financial Snapshot Last Month, Last Quarter, and Last Year balance changes now read from module history instead of Dashboard snapshots.","Added History controls so historical balances can be recorded with an effective date; unknown history remains shown as — rather than guessed."]}
+{
+  "version": "4.7.2",
+  "whatsNew": [
+    "Fixed the Dashboard render failure that was preventing the cash chart, spending pie chart, Expenses & Bills Paid list, Next Bills, and Financial Snapshot from loading.",
+    "Restored the shared monthly financial calculation functions used by Dashboard, Forecasts, and Financial Snapshot.",
+    "Fixed transaction-to-bill linking so the newly created transaction is included when the bill occurrence recalculates its paid amount and status.",
+    "Preserved the one-transaction-per-actual-payment rule for bill payments.",
+    "Increased Bills & Calendar month cells so the calendar uses the available card width and is easier to read.",
+    "Updated the PWA service-worker cache to 4.7.2."
+  ]
+}
